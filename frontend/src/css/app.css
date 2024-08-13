@@ -1,0 +1,130 @@
+.text-grand-hotel {
+  font-family: "Grand Hotel", "Roboto", "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.constrain {
+  max-width: 975px;
+  margin: 0 auto;
+}
+
+.constrain-more {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Max width */
+.max-w-100{
+  max-width: 100px;
+}
+.max-w-150{
+  max-width: 150px;
+}
+.max-w-200{
+  max-width: 200px;
+}
+
+/* Max height */
+.max-h-500{
+  max-height: 500px;
+}
+
+.overflow-y-hidden{
+  overflow-y: hidden;
+}
+/* VH */
+.vh-chat{
+  height: 70vmax;
+}
+.vh-5{
+  height: 5vh;
+}
+.vh-10{
+  height: 10vh;
+}
+.vh-55{
+  height: 55vh;
+}
+.vh-60{
+  height: 60vh;
+}
+.vh-60-overflow-scroll{
+  height: 60vh;
+  overflow-y: scroll;
+}
+.vh-65{
+  height: 65vh;
+}
+.vh-70{
+  height: 70vh;
+}
+.vh-75{
+  height: 75vh;
+}
+.vh-70-overflow-scroll{
+  height: 70vh;
+  overflow-y: scroll;
+}
+.vh-80{
+  height: 80vh;
+}
+.vh-80-overflow-scroll{
+  height: 80vh;
+  overflow-y: scroll;
+}
+.vh-100{
+  height: 100vh;
+}
+/* QCARD */
+.q-card{
+  color: #616161;
+}
+.q-car-post{
+  position: relative;
+}
+/* ALERTS */
+.alert {
+  position: relative;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+}
+
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+.vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.text-center{
+  text-align: center;
+}
+
+
+/* MEDIA */
+@media (max-width: 599px) {
+  .small-screen-only {
+    display: inherit;
+  }
+  .large-screen-only {
+    display: none;
+  }
+}
+@media (min-width: 600px) {
+  .small-screen-only {
+    display: none;
+  }
+  .large-screen-only {
+    display: inherit;
+  }
+}
