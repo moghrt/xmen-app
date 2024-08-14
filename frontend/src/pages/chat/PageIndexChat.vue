@@ -2,30 +2,38 @@
   <q-page class="constrain-more q-pa-md">
     <div class="q-gutter-y-md" style="max-width: 600px">
       <q-card>
-        <q-tabs v-model="tab" dense class="text-grey" active-color="primary" indicator-color="primary" align="justify"
-          narrow-indicator>
-          <q-tab name="groups" label="Grupos" />
+        <q-tabs ref="qtabs" v-model="tab" dense class="text-grey" active-color="primary" indicator-color="primary"
+          align="justify" narrow-indicator>
           <q-tab name="direct-messages" label="Mensajes" />
+          <q-tab name="groups" label="Grupos" />
         </q-tabs>
         <q-tab-panels v-model="tab" animated>
-          <q-tab-panel name="direct-messages">
-            <component-user-resume :toUrl="dataComponent.to_url" :avatarUrl="dataComponent.avatar_url"
-              :name="dataComponent.name" :caption="dataComponent.caption"></component-user-resume>
-            <q-separator class="q-my-md" />
-            <div class="row justify-center">
-              <q-btn round color="primary" icon="eva-plus-outline" />
-            </div>
-          </q-tab-panel>
           <q-tab-panel name="groups">
-            <div v-for="room in rooms" :key="room.id">
-              <component-user-resume v-if="checkTags(room.tags)" :toUrl="'/chat/' + room.id"
-                :avatarUrl="room.user_avatar_url" :name="room.client" :caption="room.caption"></component-user-resume>
-                <q-separator v-if="checkTags(room.tags)" class="q-my-md" />
+            <q-scroll-area class="vh-65">
+              <div v-for="room in groupRooms" :key="room.id">
+                <component-user-resume v-if="checkAvailableRooms(room.tags, false)" :toUrl="'/chat/' + room.id"
+                  :avatarUrl="room.image" :name="room.name" :caption="room.caption"></component-user-resume>
+                <q-separator v-if="checkAvailableRooms(room.tags, false)" class="q-my-md" />
               </div>
+            </q-scroll-area>
+          </q-tab-panel>
+          <q-tab-panel name="direct-messages">
+            <q-scroll-area class="vh-65">
+              <div v-for="room in messagesRooms" :key="room.id">
+                <component-user-resume v-if="checkAvailableRooms(room.name, true)"
+                  :toUrl="'/chat/' + room.id" :avatarUrl="room.image" :name="room.name"
+                  :caption="room.caption"></component-user-resume>
+                <q-separator  v-if="checkAvailableRooms(room.name, true)" class="q-my-md" />
+              </div>
+            </q-scroll-area>
+            <div class="row justify-center">
+              <q-btn round color="primary" icon="eva-plus-outline" @click="openModal" />
+            </div>
           </q-tab-panel>
         </q-tab-panels>
       </q-card>
     </div>
+    <component-add-chat-modal :value="showModal" @submit="onAcceptModal" @cancel="onCancelModal" />
   </q-page>
 </template>
 
@@ -34,15 +42,17 @@ import { api } from 'boot/axios'
 import { ref } from 'vue';
 import { authStore } from 'stores/store';
 import ComponentUserResume from 'src/components/ComponentUserResume.vue';
+import ComponentAddChatModal from 'src/components/ComponentAddChatModal.vue';
 export default {
   name: "PageIndexChat",
   components: {
-    ComponentUserResume
+    ComponentUserResume,
+    ComponentAddChatModal
   },
   setup() {
     const store = authStore();
     return {
-      tab: ref('groups'),
+      tab: ref('direct-messages'),
       store,
     };
   },
@@ -55,6 +65,10 @@ export default {
         caption: "Caption"
       }),
       rooms: [],
+      showModal: false,
+      modalData: ref([]),
+      groupRooms: ref([]),
+      messagesRooms: ref([]),
     };
   },
   mounted() {
@@ -64,24 +78,48 @@ export default {
     getRooms() {
       api.get("/api/v1/rooms/")
         .then(response => {
-          this.rooms = response.data.results;
+          this.groupRooms = response.data.filter(room => room.type == 'grupos');
+          this.messagesRooms = response.data.filter(room => room.type == 'mensajes');
         })
     },
-    checkTags(roomTags) {
-      let userTags = this.store.user_tags;
-      let chatRoomList = roomTags.split(',').map(tag => tag.trim());
-      let userList = userTags.split(',').map(tag => tag.trim());
+    checkAvailableRooms(roomArgs, checkByName) {
+      let userArgs = (checkByName) ? this.store.user_name : this.store.user_tags;
+      let chatRoomList = roomArgs.split(',').map(arg => arg.trim());
+      let userList = userArgs.split(',').map(arg => arg.trim());
 
-      // Si el chat no tiene tags, es público para todos.
+      // Si el chat no tiene argumentos, es público para todos.
       if (chatRoomList.length == 0)
         return true;
 
-      let coincidences = chatRoomList.filter(tag => userList.includes(tag));
+      let coincidences = chatRoomList.filter(arg => userList.includes(arg));
 
-      if(coincidences.length > 0)
+      if (coincidences.length > 0)
         return true;
 
       return false;
+    },
+    openModal() {
+      this.showModal = true;
+      console.log(this.showModal);
+    },
+    onAcceptModal(usersSelected) {
+      console.log(usersSelected);
+      // Crear el chat con el uui de los integrantes separados por guiones (-).
+      let data = {
+        authorId: this.store.user_id,
+        authorName: this.store.user_name,
+        image: this.store.user_avatar_url,
+        items: usersSelected,
+      };
+      api.post("/api/v1/rooms/create_room/", data)
+        .then(response => {
+          console.log(response);
+          this.getRooms();
+        })
+      this.showModal = false;
+    },
+    onCancelModal() {
+      this.showModal = false;
     }
   },
 }

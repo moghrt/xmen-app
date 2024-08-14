@@ -1,9 +1,5 @@
 <template>
   <q-page class="constrain q-pa-md">
-    <div>
-      <!----<home-stories></home-stories>
-            <newsfeed></newsfeed> -->
-    </div>
     <div class="row q-col-gutter-lg">
       <div class="col-sm-8 col-12">
         <q-input v-model="userSearch" label="Buscar usuario" dense clearable />
@@ -26,11 +22,6 @@
                 <q-item-label caption>
                   {{ user.caption }}
                 </q-item-label>
-              </q-item-section>
-              <q-item-section>
-                <div class="q-ml-md">
-                  <q-btn round color="primary" icon="eva-email-outline" @click="createOrJoinRoom(user.id)" />
-                </div>
               </q-item-section>
             </q-item>
           </q-card>
@@ -198,6 +189,6 @@ a.comments:hover {
 .q-field__prefix,
 .q-field__suffix,
 .q-field__input {
-  color: #bdbdbd;
+  color: #4f4f4f;
 }
 </style>

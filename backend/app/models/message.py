@@ -17,4 +17,4 @@ class Message(models.Model):
         return timesince(self.created_at)
     
     def __str__(self) -> str:
-        return f'Room: {self.room.client} Id: {self.id}, {self.sent_by} : {self.body}'
+        return f'Room: {self.room.name} Id: {self.id}, {self.sent_by} : {self.body}'

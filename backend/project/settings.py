@@ -136,7 +136,7 @@ DATABASES = {
         'USER':os.environ.get('DATABASE_USER'),
         'PASSWORD':os.environ.get('DATABASE_PASSWORD'),
         'PORT':os.environ.get('DATABASE_POSTGRESQL_PORT'),
-        #'HOST': 'localhost' if DEBUG else os.environ.get('DATABASE_HOST')
+        #'HOST': 'localhost'
         'HOST': os.environ.get('DATABASE_HOST')
     }
 }

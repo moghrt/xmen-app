@@ -1,9 +1,18 @@
 <template>
   <q-page class="constrain-more q-pa-md overflow-y-hidden">
-    <h6 class="q-my-sm" v-if="connectionReady">{{ roomName }} <span class="connection_ready "><q-badge rounded
-          color="green" /></span>
-    </h6>
-    <h6 v-else>{{ roomName }} <span class="connection_ready "><q-badge rounded color="red" /></span></h6>
+    <q-item class="no-padding">
+      <q-item-section avatar>
+        <q-avatar size="32px">
+          <img :src="roomImage">
+        </q-avatar>
+      </q-item-section>
+      <q-item-section>
+        <q-item-label class="q-my-sm" v-if="connectionReady">{{ roomName }} <span
+            class="q-ml-xs connection_ready "><q-badge rounded color="green" /></span></q-item-label>
+        <q-item-label class="q-my-sm" v-else>{{ roomName }} <span class="q-ml-xs connection_ready "><q-badge rounded
+              color="red" /></span></q-item-label>
+      </q-item-section>
+    </q-item>
     <div class="row q-col-gutter-lg">
       <div class="col-12">
         <q-card class="card-post q-mb-sm chat" flat bordered>
@@ -33,7 +42,7 @@
                 <q-icon name="send" />
               </span>
               <input v-model="newMessage" @keyup.enter="sendMessage" type="text" id="ip_search"
-                placeholder="Mensaje..." />
+                placeholder="Mensaje...">
             </div>
           </div>
         </section>
@@ -66,6 +75,7 @@ export default {
       newMessage: "",
       nickname: null,
       roomName: null,
+      roomImage: null,
       prevSender: this.store.user_name,
       scrollAreaHeigth: ref(0),
       scrollAreaIncrement: 46,
@@ -142,7 +152,7 @@ export default {
       this.connectionError = true;
     },
     sendMessage() {
-      if (this.newMessage.length == 0)
+      if (this.newMessage.trim().length == 0)
         return;
 
       let data = { type: 'message', sent_by: this.store.user_name, author: this.store.user_name, body: this.newMessage };
@@ -156,7 +166,8 @@ export default {
       api.get(`/api/v1/rooms/${roomId}/`)
         .then(response => {
           this.messages = response.data.messages;
-          this.roomName = response.data.client;
+          this.roomName = response.data.name;
+          this.roomImage = response.data.image;
           this.scrollAreaHeigth += this.scrollAreaIncrement * response.data.messages.length;
           this.animateScroll();
         })

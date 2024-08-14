@@ -2,27 +2,25 @@ from django.db import models
 from django.conf import settings
 
 class Room(models.Model):
-    WAITING = 'waiting'
-    ACTIVE = 'active'
-    CLOSED = 'closed'
+    GROUPS = 'grupos'
+    DIRECT_MESSAGES = 'mensajes'
 
-    CHOICES_STATUS = (
-        (WAITING, 'Waiting'),
-        (ACTIVE, 'Active'),
-        (CLOSED, 'Closed'),
+    TYPES = (
+        (GROUPS, 'Grupos'),
+        (DIRECT_MESSAGES, 'Mensajes'),
     )
 
     uuid = models.CharField(max_length=255)
-    client = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
     caption = models.CharField(max_length=255, default='')
-    tags = models.CharField(max_length=255, default='')
+    tags = models.CharField(max_length=255, blank=True, default='')
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, related_name='rooms', blank=True, null=True)
-    url = models.CharField(max_length=255, blank=True, null=True)
-    status = models.CharField(max_length=255, choices=CHOICES_STATUS, default=WAITING)
+    image = models.ImageField(upload_to='rooms/', null=True, blank=True)
+    type = models.CharField(max_length=255, choices=TYPES, default=DIRECT_MESSAGES)
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
         ordering = ('-created_at',)
    
     def __str__(self):
-        return f'{self.client} - {self.caption}'
+        return f'{self.name} - {self.caption}'

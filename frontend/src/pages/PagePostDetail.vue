@@ -23,35 +23,40 @@
           </q-item>
           <q-separator />
           <q-card-section>
-            <q-img :src="post.image" />
+            <q-img id="post-image" :src="post.image" />
             <q-btn-group outline class="q-mt-sm">
               <q-btn outline padding="xs" v-if="!isMyPost(post)" :color="postLikeStatus(post).color"
                 :icon="postLikeStatus(post).icon" @click="buttonLike(post)" />
             </q-btn-group>
             <div v-if="post.likes > 0" class="text-bold q-mt-sm">{{ post.likes }} Me gusta</div>
             <div class="q-mt-sm"><span class="text-bold">{{ post.user_name }}</span> {{ post.title }}</div>
-            <div class="q-mt-sm">
-              {{ post.description }}
+            <div id="post-description" class="q-mt-sm">
+              <p class="pre-line">
+                {{ post.description }}
+              </p>
             </div>
-            <div class="q-mt-md" v-for="comment in post.comments" :key="comment.id">
-              <q-item class="comment">
-                <q-item-section avatar>
-                  <router-link :to="`/profile/${comment.user_id}`">
-                    <q-avatar>
-                      <img :src="comment.user_avatar_url">
-                    </q-avatar>
-                  </router-link>
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    <span class="text-bold">{{ comment.user_name }}:</span>
-                    <span class="q-px-sm">{{ comment.text }}</span>
-                  </q-item-label>
-                  <q-item-label caption>
-                    {{ dateSerialized(comment.created_at) }}
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
+            <div id="post-comments">
+
+              <div class="q-mt-md" v-for="comment in post.comments" :key="comment.id">
+                <q-item class="comment">
+                  <q-item-section avatar>
+                    <router-link :to="`/profile/${comment.user_id}`">
+                      <q-avatar>
+                        <img :src="comment.user_avatar_url">
+                      </q-avatar>
+                    </router-link>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>
+                      <span class="text-bold">{{ comment.user_name }}:</span>
+                      <span class="q-px-sm">{{ comment.text }}</span>
+                    </q-item-label>
+                    <q-item-label caption>
+                      {{ dateSerialized(comment.created_at) }}
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+              </div>
             </div>
           </q-card-section>
         </q-card>
@@ -64,13 +69,16 @@
       </q-card>
     </div>
     <div class="q-py-sm">
-      <q-input bottom-slots v-model="commentInput" placeholder="Añade un comentario" dense>
-        <template v-slot:append>
-          <q-icon v-if="commentInput != null" name="close" @click="commentInput = null" icon="eva-close-outline" />
-          <q-btn v-if="commentInput != null" round dense flat icon="eva-checkmark-circle-outline"
-            @click="sendComment(commentInput)" />
-        </template>
-      </q-input>
+      <q-form class="q-gutter-md">
+        <q-input bottom-slots v-model="commentInput" placeholder="Añade un comentario" dense
+          :rules="[val => val != null && !!val.trim() || 'El campo no puede estar vacio.']">
+          <template v-slot:append>
+            <q-icon v-if="commentInput != null" name="close" @click="commentInput = null" icon="eva-close-outline" />
+            <q-btn v-if="commentInput != null && !!commentInput.trim()" round dense flat icon="eva-checkmark-circle-outline"
+              @click="sendComment(commentInput)" type="submit" />
+          </template>
+        </q-input>
+      </q-form>
     </div>
     <q-page-scroller position="bottom-right" :scroll-offset="150" :offset="[18, 18]">
       <q-btn fab icon="keyboard_arrow_up" color="primary" />
@@ -80,7 +88,6 @@
 
 <script>
 import { ref } from 'vue';
-import { date } from 'quasar'
 import { api } from 'boot/axios'
 import { authStore } from 'stores/store';
 import ComponentUserResume from 'src/components/ComponentUserResume.vue';
@@ -111,6 +118,8 @@ export default {
       commentInput: null,
       openPopUpComment: false,
       windowHeight: (window.innerHeight * 3) / 4,
+      scrollAreaHeigth: ref(0),
+      scrollAreaIncrement: 46,
     };
   },
   computed: {
@@ -122,13 +131,25 @@ export default {
   },
   mounted() {
     this.loadPost(true);
-    window.addEventListener('scroll', this.handleScroll);
+    //window.addEventListener('scroll', this.handleScroll);
     //window.addEventListener('resize', this.onResize)
   },
-  beforeUnmount() {
+  /*beforeUnmount() {
     window.removeEventListener('scroll', this.handleScroll);
-  },
+  },*/
   methods: {
+    animateScroll() {
+      const duration = 1; // ms - usa 0 para scoll instanténeo.
+      this.calculateHeight();
+      this.$refs.scrollArea.setScrollPosition('vertical', this.scrollAreaHeigth, duration);
+    },
+    calculateHeight() {
+      var image = document.getElementById('post-image');
+      var description = document.getElementById('post-description');
+      var comments = document.getElementById('post-comments');
+
+      this.scrollAreaHeigth += image.offsetHeight + description.offsetHeight + comments.offsetHeight;
+    },
     loadPost(init) {
       if (this.nextPage == null)
         return;
@@ -158,6 +179,7 @@ export default {
     loadPaginatedComments(comments) {
       for (let i = 0; i < comments.length; i++) {
         this.post.comments.push(comments[i]);
+        this.scrollAreaHeigth += this.scrollAreaIncrement;
       }
     },
     dateSerialized(dateTime) {
@@ -231,7 +253,7 @@ export default {
         'user_id': this.store.user_id,
       };
       //scope.set();
-      this.scrollToBottom();
+      //this.scrollToBottom();
 
       api.post(`/api/v1/comments/create_comment/`, data)
         .then(response => {
@@ -240,29 +262,29 @@ export default {
             this.openPopUpComment = false;
             //this.post.comments.unshift(response.data);  // Para añadir al principio.
             this.post.comments.push(response.data);  // Para añadir al principio.
+            this.animateScroll();
           }
         })
         .catch(error => {
           console.log(error.data);
         });
 
-      this.$refs.scrollArea.setScrollPercentage('vertical', 1);
     },
-    scrollToBottom() {
+    /*scrollToBottom() {
       window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
-    },
-    onResize() {
+    },*/
+    /*onResize() {
       console.log("On resize: " + window.innerHeight);
       this.windowHeight = window.innerHeight
-    },
-    onScroll(position) {
+    },*/
+    /*onScroll(position) {
       if (position.verticalPercentage > 0.9 && this.hasNext) {
         console.log("dale");
         this.nextPage++;
         this.loadPost(false);
       }
       console.log(position);
-    }
+    }*/
   },
 };
 </script>

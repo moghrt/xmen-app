@@ -37,13 +37,6 @@
     <div class="row justify-center q-pa-md">
       <q-input class="col col-sm-8" v-model="post.description" type="text" label="Escribe algo" />
     </div>
-    <div class="row justify-center q-pa-md">
-      <q-input class="col col-sm-8" v-model="post.location" type="text" label="¿Donde estás?">
-        <template v-slot:append>
-          <q-btn round dense flat icon="eva-navigation-2-outline" />
-        </template>
-      </q-input>
-    </div>
     <div class="row justify-center q-mt-lg">
       <q-btn unelevated rounded color="primary" label="Subir publicación" @click="submitPost" />
     </div>
@@ -229,6 +222,6 @@ export default {
 .q-field--standout.q-field--highlighted .q-field__prepend,
 .q-field--standout.q-field--highlighted .q-field__append,
 .q-field--standout.q-field--highlighted .q-field__input {
-  color: #616161;
+  color: #4f4f4f;
 }
 </style>

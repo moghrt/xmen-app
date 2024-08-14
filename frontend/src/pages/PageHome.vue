@@ -41,7 +41,9 @@
                 </q-item-section>
               </template>
               <q-card>
-                {{ post.description }}
+                <p class="pre-line">
+                  {{ post.description }}
+                </p>
               </q-card>
             </q-expansion-item>
             <div class="q-mt-md" v-if="post.number_of_comments > 0">
@@ -49,14 +51,16 @@
                 post.number_of_comments
                 }} comentarios</q-btn>
             </div>
-            <q-input bottom-slots v-model="commentInput[post.id]" placeholder="Añade un comentario" dense>
-              <template v-slot:append>
-                <q-icon v-if="commentInput[post.id] != null" name="close" @click="commentInput[post.id] = null"
-                  icon="eva-close-outline" />
-                <q-btn v-if="commentInput[post.id] != null" round dense flat icon="eva-checkmark-circle-outline"
-                  @click="sendComment(post)" />
-              </template>
-            </q-input>
+            <form>
+              <q-input bottom-slots v-model="commentInput[post.id]" placeholder="Añade un comentario" dense>
+                <template v-slot:append>
+                  <q-icon v-if="commentInput[post.id] != null" name="close" @click="commentInput[post.id] = null"
+                    icon="eva-close-outline" />
+                  <q-btn v-if="commentInput[post.id] != null" round dense flat icon="eva-checkmark-circle-outline"
+                    @click="sendComment(post)" type="submit" />
+                </template>
+              </q-input>
+            </form>
           </q-card-section>
         </q-card>
       </div>
@@ -202,6 +206,10 @@ export default {
     },
     sendComment(post) {
       // Enviar un comentario.
+      if(this.commentInput[post.id].trim().length == 0){
+        return;
+      }
+
       let data = {
         'post_id': post.id,
         'comment': this.commentInput[post.id],
@@ -253,6 +261,6 @@ a.comments:hover {
 .q-field__prefix,
 .q-field__suffix,
 .q-field__input {
-  color: #bdbdbd;
+  color: #4f4f4f;
 }
 </style>

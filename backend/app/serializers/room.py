@@ -4,7 +4,6 @@ from app.serializers.message import MessageSerializer
 
 class RoomSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
-    user_avatar_url = serializers.SerializerMethodField()
     messages = MessageSerializer(many=True)
 
     def get_user_avatar_url(self, obj):
@@ -22,13 +21,12 @@ class RoomSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'uuid',
-            'client',
+            'name',
             'caption',
+            'image',
             'author',
-            'url',
             'created_at',
-            'status',
-            'user_avatar_url',
+            'type',
             'messages',
             'tags',
         ]
